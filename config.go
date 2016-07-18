@@ -148,6 +148,8 @@ type Config struct {
 	MailMaker MailMaker
 	// ContextProvider provides a context for a given request
 	ContextProvider func(*http.Request) context.Context
+  // json describes whether to response to post requests with json instead of html pages.
+  Json bool
 }
 
 // Defaults sets the configuration's default values.
@@ -201,4 +203,5 @@ func (c *Config) Defaults() {
 	c.ContextProvider = func(req *http.Request) context.Context {
 		return context.TODO()
 	}
+  c.json = false
 }

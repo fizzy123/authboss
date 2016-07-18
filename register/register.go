@@ -4,6 +4,7 @@ package register
 import (
 	"errors"
 	"net/http"
+  "encoding/json"
 
 	"golang.org/x/crypto/bcrypt"
 	"gopkg.in/authboss.v0"
@@ -112,8 +113,17 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		for _, f := range reg.PreserveFields {
 			data[f] = r.FormValue(f)
 		}
-
-		return reg.templates.Render(ctx, w, r, tplRegister, data)
+    if reg.Json {
+      js, err := Json.Marshal(data)
+      if err != nil {
+        return err
+      }
+      w.Header().Set("Content-Type", "application/Json")
+      w.Write(js)
+      return nil
+    } else {
+      return reg.templates.Render(ctx, w, r, tplRegister, data)
+    }
 	}
 
 	attr, err := authboss.AttributesFromRequest(r) // Attributes from overriden forms
@@ -141,7 +151,17 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 			data[f] = r.FormValue(f)
 		}
 
-		return reg.templates.Render(ctx, w, r, tplRegister, data)
+    if reg.Json {
+      js, err := Json.Marshal(data)
+      if err != nil {
+        return err
+      }
+      w.Header().Set("Content-Type", "application/json")
+      w.Write(js)
+      return nil
+    } else {
+      return reg.templates.Render(ctx, w, r, tplRegister, data)
+    }
 	} else if err != nil {
 		return err
 	}
@@ -151,12 +171,38 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 	}
 
 	if reg.IsLoaded("confirm") {
-		response.Redirect(ctx, w, r, reg.RegisterOKPath, "Account successfully created, please verify your e-mail address.", "", true)
-		return nil
+    message := "Account successfully created, please verify your e-mail address."
+    if reg.Json {
+      data["message"] = message
+      js, err := Json.Marshal(data)
+      if err != nil {
+        return err
+      }
+      w.Header().Set("Content-Type", "application/json")
+      w.Write(js)
+      return nil
+    } else {
+      response.Redirect(ctx, w, r, reg.RegisterOKPath, message, "", true)
+      return nil
+    }
 	}
 
-	ctx.SessionStorer.Put(authboss.SessionKey, key)
-	response.Redirect(ctx, w, r, reg.RegisterOKPath, "Account successfully created, you are now logged in.", "", true)
 
-	return nil
+
+	ctx.SessionStorer.Put(authboss.SessionKey, key)
+  message = "Account successfully created, you are now logged in."
+  if reg.Json {
+    data["message"] = message
+    data["uid"] = key
+    js, err := Json.Marshal(data)
+    if err != nil {
+      return err
+    }
+    w.Header().Set("Content-Type", "application/json")
+    w.Write(js)
+    return nil
+  } else {
+    response.Redirect(ctx, w, r, reg.RegisterOKPath, message, "", true)
+    return nil
+  }
 }
