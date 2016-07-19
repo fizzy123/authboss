@@ -14,6 +14,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+  "encoding/json"
 
 	"github.com/fizzy123/authboss"
 )
@@ -156,4 +157,15 @@ func Redirect(ctx *authboss.Context, w http.ResponseWriter, r *http.Request, pat
 		ctx.SessionStorer.Put(authboss.FlashErrorKey, flashError)
 	}
 	http.Redirect(w, r, path, http.StatusFound)
+}
+
+// JsonResponse formats and writes the json response
+func JsonResponse(w http.ResponseWriter, data authboss.HTMLData) {
+  js, err := json.Marshal(data)
+  if err != nil {
+    return err
+  }
+  w.Header().Set("Content-Type", "application/json")
+  w.write(js)
+  return nil
 }

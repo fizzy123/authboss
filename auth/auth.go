@@ -1,4 +1,4 @@
-// Package auth implements password based user logins.
+/ Package auth implements password based user logins.
 package auth
 
 import (
@@ -94,13 +94,23 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 
 		if valid, err := validateCredentials(ctx, key, password); err != nil {
 			errData["error"] = "Internal server error"
-			fmt.Fprintf(ctx.LogWriter, "auth: validate credentials failed: %v\n", err)
-			return a.templates.Render(ctx, w, r, tplLogin, errData)
+      if a.Json {
+        errData["errs"] = map[string][]string{"server": []string{errData["error"]}}
+        return response.JsonResponse(w, errData)
+      } else {
+        fmt.Fprintf(ctx.LogWriter, "auth: validate credentials failed: %v\n", err)
+        return a.templates.Render(ctx, w, r, tplLogin, errData)
+      }
 		} else if !valid {
 			if err := a.Callbacks.FireAfter(authboss.EventAuthFail, ctx); err != nil {
 				fmt.Fprintf(ctx.LogWriter, "EventAuthFail callback error'd out: %v\n", err)
 			}
-			return a.templates.Render(ctx, w, r, tplLogin, errData)
+      if a.Json {
+        errData["errs"] = map[string][]string{"validation": []string{errData["error"]}}
+        return response.JsonResponse(w, errData)
+      } else {
+        return a.templates.Render(ctx, w, r, tplLogin, errData)
+      }
 		}
 
 		interrupted, err := a.Callbacks.FireBefore(authboss.EventAuth, ctx)
@@ -114,8 +124,13 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 			case authboss.InterruptAccountNotConfirmed:
 				reason = "Your account has not been confirmed."
 			}
-			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", reason, false)
-			return nil
+      if a.Json {
+        errData["errs"] = map[string][]string{"account": []string{reason}}
+        return response.JsonResponse(w, errData)
+      } else {
+        response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", reason, false)
+        return nil
+      }
 		}
 
 		ctx.SessionStorer.Put(authboss.SessionKey, key)
@@ -125,7 +140,14 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 		if err := a.Callbacks.FireAfter(authboss.EventAuth, ctx); err != nil {
 			return err
 		}
-		response.Redirect(ctx, w, r, a.AuthLoginOKPath, "", "", true)
+    if a.Json {
+      data := authboss.HTMLData{
+        "uid": key,
+      }
+      return response.JsonResponse(w, data)
+    } else {
+      response.Redirect(ctx, w, r, a.AuthLoginOKPath, "", "", true)
+    }
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -159,7 +181,11 @@ func (a *Auth) logoutHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r
 		ctx.CookieStorer.Del(authboss.CookieRemember)
 		ctx.SessionStorer.Del(authboss.SessionLastAction)
 
-		response.Redirect(ctx, w, r, a.AuthLogoutOKPath, "You have logged out", "", true)
+    if a.Json {
+      response.JsonResponse(w, nil)
+    } else {
+      response.Redirect(ctx, w, r, a.AuthLogoutOKPath, "You have logged out", "", true)
+    }
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}

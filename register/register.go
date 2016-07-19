@@ -4,7 +4,6 @@ package register
 import (
 	"errors"
 	"net/http"
-  "encoding/json"
 
 	"golang.org/x/crypto/bcrypt"
 	"github.com/fizzy123/authboss"
@@ -107,20 +106,14 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		data := authboss.HTMLData{
 			"primaryID":      reg.PrimaryID,
 			"primaryIDValue": key,
-			"errs":           validationErrs.Map(),
+			"errs":         validationErrs.Map(),
 		}
 
 		for _, f := range reg.PreserveFields {
 			data[f] = r.FormValue(f)
 		}
     if reg.Json {
-      js, err := json.Marshal(data)
-      if err != nil {
-        return err
-      }
-      w.Header().Set("Content-Type", "application/json")
-      w.Write(js)
-      return nil
+      return response.JsonResponse(w, data)
     } else {
       return reg.templates.Render(ctx, w, r, tplRegister, data)
     }
@@ -152,13 +145,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		}
 
     if reg.Json {
-      js, err := json.Marshal(data)
-      if err != nil {
-        return err
-      }
-      w.Header().Set("Content-Type", "application/json")
-      w.Write(js)
-      return nil
+      return response.JsonResponse(w, data)
     } else {
       return reg.templates.Render(ctx, w, r, tplRegister, data)
     }
@@ -175,13 +162,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
     if reg.Json {
       data := authboss.HTMLData{}
       data["message"] = message
-      js, err := json.Marshal(data)
-      if err != nil {
-        return err
-      }
-      w.Header().Set("Content-Type", "application/json")
-      w.Write(js)
-      return nil
+      return response.JsonResponse(w, data)
     } else {
       response.Redirect(ctx, w, r, reg.RegisterOKPath, message, "", true)
       return nil
@@ -194,13 +175,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
   if reg.Json {
     data["message"] = message
     data["uid"] = key
-    js, err := json.Marshal(data)
-    if err != nil {
-      return err
-    }
-    w.Header().Set("Content-Type", "application/json")
-    w.Write(js)
-    return nil
+    return response.JsonResponse(w, data)
   } else {
     response.Redirect(ctx, w, r, reg.RegisterOKPath, message, "", true)
     return nil

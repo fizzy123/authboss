@@ -146,12 +146,20 @@ func (rec *Recover) startHandlerFunc(ctx *authboss.Context, w http.ResponseWrite
 		policies := authboss.FilterValidators(rec.Policies, rec.PrimaryID)
 		if validationErrs := authboss.Validate(r, policies, rec.PrimaryID, authboss.ConfirmPrefix+rec.PrimaryID).Map(); len(validationErrs) > 0 {
 			errData.MergeKV("errs", validationErrs)
-			return rec.templates.Render(ctx, w, r, tplRecover, errData)
+      if rec.Json {
+        return response.JsonResponse(w, errData)
+      } else {
+        return rec.templates.Render(ctx, w, r, tplRecover, errData)
+      }
 		}
 
 		// redirect to login when user not found to prevent username sniffing
 		if err := ctx.LoadUser(primaryID); err == authboss.ErrUserNotFound {
-			return authboss.ErrAndRedirect{Err: err, Location: rec.RecoverOKPath, FlashSuccess: recoverInitiateSuccessFlash}
+      if rec.Json {
+        return response.JsonResponse(w, errData)
+      } else {
+        return authboss.ErrAndRedirect{Err: err, Location: rec.RecoverOKPath, FlashSuccess: recoverInitiateSuccessFlash}
+      }
 		} else if err != nil {
 			return err
 		}
@@ -176,7 +184,11 @@ func (rec *Recover) startHandlerFunc(ctx *authboss.Context, w http.ResponseWrite
 		goRecoverEmail(rec, ctx, email, encodedToken)
 
 		ctx.SessionStorer.Put(authboss.FlashSuccessKey, recoverInitiateSuccessFlash)
-		response.Redirect(ctx, w, r, rec.RecoverOKPath, "", "", true)
+    if rec.Json {
+      return response.JsonResponse(w, errData)
+    } else {
+      response.Redirect(ctx, w, r, rec.RecoverOKPath, "", "", true)
+    }
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -246,7 +258,11 @@ func (r *Recover) completeHandlerFunc(ctx *authboss.Context, w http.ResponseWrit
 				formValueToken, token,
 				"errs", validationErrs,
 			)
-			return r.templates.Render(ctx, w, req, tplRecoverComplete, data)
+      if r.Json {
+        return response.JsonResponse(w, data)
+      } else {
+        return r.templates.Render(ctx, w, req, tplRecoverComplete, data)
+      }
 		}
 
 		if ctx.User, err = verifyToken(ctx, req); err != nil {
@@ -277,7 +293,11 @@ func (r *Recover) completeHandlerFunc(ctx *authboss.Context, w http.ResponseWrit
 		}
 
 		ctx.SessionStorer.Put(authboss.SessionKey, primaryID)
-		response.Redirect(ctx, w, req, r.AuthLoginOKPath, "", "", true)
+    if r.Json {
+      return response.JsonResponse(w, data)
+    } else {
+      return response.Redirect(ctx, w, req, r.AuthLoginOKPath, "", "", true)
+    }
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
