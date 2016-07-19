@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	github.com/fizzy123"
-	github.com/fizzy123/internal/mocks"
+	"github.com/fizzy123"
+	"github.com/fizzy123/internal/mocks"
 )
 
 func setup() *Register {

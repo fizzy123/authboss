@@ -11,8 +11,8 @@ import (
 	"net/url"
 	"path"
 
-	github.com/fizzy123"
-	github.com/fizzy123/internal/response"
+	"github.com/fizzy123"
+	"github.com/fizzy123/internal/response"
 )
 
 // Storer and FormValue constants

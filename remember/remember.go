@@ -10,7 +10,7 @@ import (
 	"errors"
 	"fmt"
 
-	github.com/fizzy123"
+	"github.com/fizzy123"
 )
 
 const (
