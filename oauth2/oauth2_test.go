@@ -14,8 +14,8 @@ import (
 	"golang.org/x/oauth2"
 	"golang.org/x/oauth2/facebook"
 	"golang.org/x/oauth2/google"
-	"gopkg.in/authboss.v0"
-	"gopkg.in/authboss.v0/internal/mocks"
+	github.com/fizzy123"
+	github.com/fizzy123/internal/mocks"
 )
 
 var testProviders = map[string]authboss.OAuth2Provider{
