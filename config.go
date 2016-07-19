@@ -203,5 +203,5 @@ func (c *Config) Defaults() {
 	c.ContextProvider = func(req *http.Request) context.Context {
 		return context.TODO()
 	}
-  c.json = false
+  c.Json = false
 }
