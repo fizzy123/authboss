@@ -294,9 +294,10 @@ func (r *Recover) completeHandlerFunc(ctx *authboss.Context, w http.ResponseWrit
 
 		ctx.SessionStorer.Put(authboss.SessionKey, primaryID)
     if r.Json {
-      return response.JsonResponse(w, data)
+      return response.JsonResponse(w, nil)
     } else {
-      return response.Redirect(ctx, w, req, r.AuthLoginOKPath, "", "", true)
+      response.Redirect(ctx, w, req, r.AuthLoginOKPath, "", "", true)
+      return nil
     }
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)

@@ -161,11 +161,13 @@ func Redirect(ctx *authboss.Context, w http.ResponseWriter, r *http.Request, pat
 
 // JsonResponse formats and writes the json response
 func JsonResponse(w http.ResponseWriter, data authboss.HTMLData) error {
-  js, err := json.Marshal(data)
-  if err != nil {
-    return err
+  if data != nil {
+    js, err := json.Marshal(data)
+    if err != nil {
+      return err
+    }
+    w.Write(js)
   }
   w.Header().Set("Content-Type", "application/json")
-  w.Write(js)
   return nil
 }
