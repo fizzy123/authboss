@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/fizzy123"
+	"github.com/fizzy123/authboss"
 )
 
 var (

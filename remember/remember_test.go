@@ -5,8 +5,8 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/fizzy123"
-	"github.com/fizzy123/internal/mocks"
+	"github.com/fizzy123/authboss"
+	"github.com/fizzy123/authboss/internal/mocks"
 )
 
 func TestInitialize(t *testing.T) {

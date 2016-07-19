@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"github.com/fizzy123"
+	"github.com/fizzy123/authboss"
 )
 
 // Storage key constants
