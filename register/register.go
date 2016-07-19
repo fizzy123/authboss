@@ -114,11 +114,11 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 			data[f] = r.FormValue(f)
 		}
     if reg.Json {
-      js, err := Json.Marshal(data)
+      js, err := json.Marshal(data)
       if err != nil {
         return err
       }
-      w.Header().Set("Content-Type", "application/Json")
+      w.Header().Set("Content-Type", "application/json")
       w.Write(js)
       return nil
     } else {
@@ -152,7 +152,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		}
 
     if reg.Json {
-      js, err := Json.Marshal(data)
+      js, err := json.Marshal(data)
       if err != nil {
         return err
       }
@@ -173,8 +173,9 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 	if reg.IsLoaded("confirm") {
     message := "Account successfully created, please verify your e-mail address."
     if reg.Json {
+      data := authboss.HTMLData{}
       data["message"] = message
-      js, err := Json.Marshal(data)
+      js, err := json.Marshal(data)
       if err != nil {
         return err
       }
@@ -187,14 +188,13 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
     }
 	}
 
-
-
+  data := authboss.HTMLData{}
 	ctx.SessionStorer.Put(authboss.SessionKey, key)
   message = "Account successfully created, you are now logged in."
   if reg.Json {
     data["message"] = message
     data["uid"] = key
-    js, err := Json.Marshal(data)
+    js, err := json.Marshal(data)
     if err != nil {
       return err
     }
